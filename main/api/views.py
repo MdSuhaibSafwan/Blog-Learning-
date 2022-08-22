@@ -71,3 +71,4 @@ def create_blog_api_view(request):
     }
 
     return JsonResponse(response, safe=True)
+ 
