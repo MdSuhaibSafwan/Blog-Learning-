@@ -1,6 +1,7 @@
 from ..models import Blog
 from django.contrib.auth import get_user_model
 from django.http import JsonResponse  # renderer
+from ..utils import get_object_or_rest_404
 
 # imports from rest_framework
 from rest_framework.decorators import api_view
@@ -72,3 +73,35 @@ def create_blog_api_view(request):
 
     return JsonResponse(response, safe=True)
  
+
+@api_view(http_method_names=["put", ])
+def update_blog_api_view(request, id):
+    data = request.data
+
+    blog = get_object_or_rest_404(Blog, id=id)
+
+    blog_title = data.get("title")
+    blog_content = data.get("content")
+    blog.title = blog_title
+    blog.content = blog_content
+
+    blog.save()
+
+    obj = {}
+    user = blog.user
+    obj["user"] = {
+        "id": user.id,  # ctrl + D
+        "username": user.username,
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+    }
+    obj["title"] = blog.title
+    obj["content"] = blog.content
+    
+    response = {
+        "status": "created",
+        "data": obj
+    }
+
+    return JsonResponse(response, safe=True)
