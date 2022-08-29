@@ -1,6 +1,7 @@
 from django.db import models
 # from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -19,4 +20,12 @@ class Blog(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def how_old_blog_is(self):
+        t1 = self.date_created
+        t2 = timezone.now()
+
+        elapsed = t2 - t1
+
+        return elapsed
 

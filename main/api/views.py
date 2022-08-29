@@ -21,14 +21,23 @@ class BlogListCreateAPIView(ListCreateAPIView):
         serializer.save(user=self.request.user)
 
     def filter_queryset(self, queryset):
-        title = self.request.query_params.get("title")
-        queryset = queryset.filter(title__icontains=title)
-        print("Filtering Queryset ", queryset)
+        title = self.request.query_params.get("title", None)
+        if title:
+            queryset = queryset.filter(title__icontains=title)
+            print("Filtering Queryset ", queryset)
 
         # filter through user
         # http://127.0.0.1:8000/api/blogs/list-create/?title=HeL&user=2
 
         return queryset
+    
+    def get_serializer_context(self):
+        return {
+            "request": self.request,
+            "view": self,
+            "format": self.format_kwarg,
+            "hello": "I am hello"
+        }
 
 
 class BlogRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
