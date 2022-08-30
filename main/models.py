@@ -29,3 +29,15 @@ class Blog(models.Model):
 
         return elapsed
 
+
+class BlogImages(models.Model):
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="blog")
+    date_created = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.blog)
+
+    class Meta:
+        verbose_name_plural = "Blog Images"
