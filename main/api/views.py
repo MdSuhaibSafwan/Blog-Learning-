@@ -6,6 +6,10 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from .serializers import BlogSerializer
 # imports from rest_framework
 from rest_framework.decorators import api_view
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from .permissions import CustomIsAuthenticatedOrReadOnly
 
 User = get_user_model()
 
@@ -16,6 +20,7 @@ User = get_user_model()
 class BlogListCreateAPIView(ListCreateAPIView):
     serializer_class = BlogSerializer
     queryset = Blog.objects.all()
+    permission_classes = [CustomIsAuthenticatedOrReadOnly, ]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -45,6 +50,18 @@ class BlogRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Blog.objects.all()
     lookup_field = "id"  # the way we wanna filter
     lookup_url_kwarg = "blog_id"
+    permission_classes = [CustomIsAuthenticatedOrReadOnly, ]
+
+    def get_object(self):
+        blog_id = self.kwargs.get("blog_id")  # referring to 1, 2, 3 anything
+        try:
+            blog = Blog.objects.get(id=blog_id)
+        except ObjectDoesNotExist:
+            raise NotFound("{'status': 'object does not exist'}")
+
+        self.check_object_permissions(self.request, blog) # this one to abondon GET request
+        return blog
+
 
     # Blog.objects.get(id(lookup_field)="uuytuytut")
 
